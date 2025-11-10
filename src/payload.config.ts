@@ -55,17 +55,6 @@ export default buildConfig({
     Users,
     {
       ...Media,
-      upload: {
-        staticDir: isRender
-          ? '/var/data/media' // ✅ persistent Render path
-          : path.resolve(dirname, 'public/media'), // ✅ local path
-        adminThumbnail: 'thumbnail',
-        focalPoint: true,
-        imageSizes: [],
-      },
-      access: {
-        read: () => true, // ensure media is publicly readable
-      },
     },
   ],
 

@@ -13,6 +13,7 @@ import { authenticated } from '../access/authenticated'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const isRender = process.env.RENDER === 'true' || process.env.NODE_ENV === 'production'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -38,11 +39,15 @@ export const Media: CollectionConfig = {
       }),
     },
   ],
+
   upload: {
     // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload
-    staticDir: path.resolve(dirname, '../../public/media'),
+    // staticDir: path.resolve(dirname, '../../public/media'),
     adminThumbnail: 'thumbnail',
     focalPoint: true,
+    staticDir: isRender
+      ? '/var/data/media' // ✅ persistent Render path
+      : path.resolve(dirname, 'public/media'), // ✅ local path
     imageSizes: [
       {
         name: 'thumbnail',
