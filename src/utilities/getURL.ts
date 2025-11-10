@@ -20,6 +20,10 @@ export const getClientSideURL = () => {
     const domain = window.location.hostname
     const port = window.location.port
 
+    if (process.env.NEXT_PUBLIC_PAYLOAD_URL) {
+      return process.env.NEXT_PUBLIC_PAYLOAD_URL
+    }
+
     return `${protocol}//${domain}${port ? `:${port}` : ''}`
   }
 

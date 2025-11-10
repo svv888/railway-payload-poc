@@ -18,6 +18,12 @@ const nextConfig = {
           protocol: url.protocol.replace(':', ''),
         }
       }),
+      // Local frontend
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+      }
     ],
   },
   reactStrictMode: true,

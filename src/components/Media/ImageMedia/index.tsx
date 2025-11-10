@@ -54,6 +54,8 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     : Object.entries(breakpoints)
         .map(([, value]) => `(max-width: ${value}px) ${value * 2}w`)
         .join(', ')
+    
+  console.log('picture', src, getClientSideURL(), process.env.VERCEL_PROJECT_PRODUCTION_URL);
 
   return (
     <picture>
