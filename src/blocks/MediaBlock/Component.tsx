@@ -35,7 +35,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
   return (
     <div
       className={cn(
-        '',
+        'relative md:w-1/2 lg:w-1/3',
         {
           container: enableGutter,
         },
@@ -47,6 +47,13 @@ export const MediaBlock: React.FC<Props> = (props) => {
           imgClassName={cn('border border-border rounded-[0.8rem]', imgClassName)}
           resource={media}
           src={staticImage}
+          responsiveWidths={[
+            { breakpoint: 'sm', width: '100%' },
+            { breakpoint: 'md', width: '50%' },
+            { breakpoint: 'lg', width: '33.33%' }
+          ]}
+          fill={false}
+          maxContainerWidth="1300px"
         />
       )}
       {caption && (

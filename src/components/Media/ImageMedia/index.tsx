@@ -27,6 +27,8 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     size: sizeFromProps,
     src: srcFromProps,
     loading: loadingFromProps,
+    responsiveWidths,
+    maxContainerWidth = "100vw",
   } = props
 
   let width: number | undefined
@@ -48,21 +50,71 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
 
   const loading = loadingFromProps || (!priority ? 'lazy' : undefined)
 
-  // NOTE: this is used by the browser to determine which image to download at different screen sizes
-  const sizes = sizeFromProps
-    ? sizeFromProps
-    : Object.entries(breakpoints)
+  // Function to calculate responsive sizes based on responsiveWidths
+  const calculateResponsiveSizes = () => {
+    if (!responsiveWidths || responsiveWidths.length === 0) {
+      return Object.entries(breakpoints)
         .map(([, value]) => `(max-width: ${value}px) ${value * 2}w`)
         .join(', ')
+    }
+
+    const sizeQueries: string[] = []
     
-  console.log('picture', src, getClientSideURL(), process.env.VERCEL_PROJECT_PRODUCTION_URL);
+    // Sort responsive widths by breakpoint size (largest first)
+    const sortedWidths = [...responsiveWidths].sort((a, b) => {
+      const aBreakpoint = breakpoints[a.breakpoint as keyof typeof breakpoints] || 0
+      const bBreakpoint = breakpoints[b.breakpoint as keyof typeof breakpoints] || 0
+      return bBreakpoint - aBreakpoint
+    })
+
+    sortedWidths.forEach(({ breakpoint, width }) => {
+      const breakpointValue = breakpoints[breakpoint as keyof typeof breakpoints]
+      if (breakpointValue) {
+        // Convert percentage to vw or px based on maxContainerWidth type
+        if (maxContainerWidth.includes('vw')) {
+          // Use viewport units directly
+          const vwValue = parseFloat(maxContainerWidth.replace('vw', ''))
+          const widthPercent = parseFloat(width.replace('%', '')) / 100
+          const calculatedWidth = Math.round(vwValue * widthPercent)
+          sizeQueries.push(`(max-width: ${breakpointValue}px) ${calculatedWidth}vw`)
+        } else {
+          // Convert percentage to actual pixels based on max container width
+          const containerWidth = parseFloat(maxContainerWidth.replace('px', ''))
+          const widthPercent = parseFloat(width.replace('%', '')) / 100
+          const calculatedWidth = Math.round(containerWidth * widthPercent)
+          sizeQueries.push(`(max-width: ${breakpointValue}px) ${calculatedWidth}px`)
+        }
+      }
+    })
+
+    // Add default size for larger screens (use the largest breakpoint's width)
+    const defaultWidth = sortedWidths[0]
+    if (defaultWidth) {
+      if (maxContainerWidth.includes('vw')) {
+        const vwValue = parseFloat(maxContainerWidth.replace('vw', ''))
+        const widthPercent = parseFloat(defaultWidth.width.replace('%', '')) / 100
+        const calculatedWidth = Math.round(vwValue * widthPercent)
+        sizeQueries.push(`${calculatedWidth}vw`)
+      } else {
+        const containerWidth = parseFloat(maxContainerWidth.replace('px', ''))
+        const widthPercent = parseFloat(defaultWidth.width.replace('%', '')) / 100
+        const calculatedWidth = Math.round(containerWidth * widthPercent)
+        sizeQueries.push(`${calculatedWidth}px`)
+      }
+    }
+
+    return sizeQueries.join(', ')
+  }
+
+  // NOTE: this is used by the browser to determine which image to download at different screen sizes
+  const sizes = sizeFromProps ? sizeFromProps : calculateResponsiveSizes()
 
   return (
     <picture>
       <NextImage
         alt={alt || ''}
         className={cn(imgClassName)}
-        fill={fill}
+        fill={fill || false}
         height={!fill ? height : undefined}
         placeholder="blur"
         blurDataURL={placeholderBlur}

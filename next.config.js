@@ -23,8 +23,14 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '3000',
+      },
+      // External Payload CMS
+      {
+        protocol: 'https',
+        hostname: 'render-payload-pg.onrender.com',
       }
     ],
+    qualities: [75, 100],
   },
   reactStrictMode: true,
   redirects,
